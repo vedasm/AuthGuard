@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Credential - AuthGuard{% endblock %}
+
+{% block main %}
+<div class="container">
+    <h2>Edit Credential</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="website" class="form-label">Website</label>
+            <input type="text" class="form-control" id="website" name="website" value="{{ cred['website'] }}" disabled>
+        </div>
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" name="username" value="{{ cred['username'] }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="text" class="form-control" id="password" name="password" value="{{ cred['password_encrypted'] }}" required>
+        </div>
+        <button class="btn btn-primary" type="submit">Update Credential</button>
+    </form>
+    <br>
+    <a href="{{ url_for('vault') }}" class="btn w-100 mt-2">Back to Vault</a>
+</div>
+{% endblock %}

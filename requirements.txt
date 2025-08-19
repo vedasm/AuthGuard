@@ -1,0 +1,6 @@
+Flask
+flask-session
+itsdangerous
+Jinja2
+Werkzeug
+cryptography

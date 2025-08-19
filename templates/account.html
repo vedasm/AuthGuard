@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Accountb- AuthGuard{% endblock %}
+
+{% block main %}
+    <div class="container" style="max-width: 500px; text-align: left;">
+        <h2>Account Settings</h2>
+
+    <!-- Change Password Form -->
+        <form method="POST">
+            <div class="mb-3">
+                <label for="prev_password" class="form-label">Previous Password</label>
+                <input type="password" class="form-control" id="prev_password" name="prev_password" required>
+            </div>
+            <div class="mb-3">
+                <label for="new_password" class="form-label">New Password</label>
+                <input type="password" class="form-control" id="new_password" name="new_password" required>
+            </div>
+            <button type="submit" name="change_password" class="btn w-100 btn-primary">Change Password</button>
+        </form>
+
+        <hr class="my-4">
+
+    <!-- Delete Account Form -->
+        <form method="POST" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+            <button type="submit" name="delete_account" class="btn w-100" style="background-color: #e74c3c;">Delete Account</button>
+        </form>
+
+        <br>
+        <a href="/" class="btn w-100 mt-2">Back to Vault</a>
+    </div>
+{% endblock %}

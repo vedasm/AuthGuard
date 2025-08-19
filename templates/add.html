@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Add Credential
+{% endblock %}
+
+{% block main %}
+
+    <div class="container">
+        <h2>Add New Credential</h2>
+        <form method="POST">
+            <label>Website</label>
+            <input type="text" name="website" required>
+
+            <label>Username</label>
+            <input type="text" name="username" required>
+
+            <label>Password</label>
+            <input name="password" placeholder="Password" type="password">
+
+            <button class="btn btn-primary" type="submit">Add Credential</button>
+        </form>
+        <br>
+        <a href="/">Back to Vault</a>
+
+    </div>
+{% endblock %}

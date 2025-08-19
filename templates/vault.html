@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}
+Vault
+{% endblock %}
+
+{% block main %}
+<div class="container">
+    <h2>Welcome, {{ g.user['username'] }}</h2>
+    <h3>Your Saved Credentials</h3>
+    {% if credentials %}
+        <div class="table-responsive">
+            <table>
+                <tr>
+                    <th>Website</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Action</th>
+                </tr>
+                {% for cred in credentials %}
+                    <tr>
+                        <td>{{ cred['website'] }}</td>
+                        <td>{{ cred['username'] }}</td>
+                        <td>
+                            <span class="password">********</span>
+                            <span class="actual-password" style="display:none;">{{ cred['password_encrypted'] }}</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn view-btn btn-primary">View</button>
+                                <a href="{{ url_for('update_credential', cred_id=cred['id']) }}" class="btn btn-primary">Edit</a>
+                                <form method="POST" action="{{ url_for('delete_credential', cred_id=cred['id']) }}" onsubmit="return confirm('Are you sure you want to delete this credential?');">
+                                    <button type="submit" class="btn btn-primary">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% else %}
+        <p>No credentials saved yet.</p>
+    {% endif %}
+</div>
+
+<script>
+const buttons = document.querySelectorAll('.view-btn');
+buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const row = btn.closest('tr');
+        const hidden = row.querySelector('.actual-password');
+        const masked = row.querySelector('.password');
+        if (hidden.style.display === 'none') {
+            hidden.style.display = 'inline';
+            masked.style.display = 'none';
+            btn.textContent = 'Hide';
+        } else {
+            hidden.style.display = 'none';
+            masked.style.display = 'inline';
+            btn.textContent = 'View';
+        }
+    });
+});
+</script>
+{% endblock %}

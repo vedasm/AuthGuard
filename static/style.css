@@ -1,0 +1,155 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #263238;
+    background-color: #f9f9f9;
+}
+
+/* Navbar */
+.navbar-brand {
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #263238 !important;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+    color: #406ff3 !important;
+}
+
+.nav-item {
+    font-size: 20px;
+}
+
+/* Icon styling */
+.material-symbols-outlined {
+    font-variation-settings:
+        'FILL' 0,
+        'wght' 600,
+        'GRAD' 0,
+        'opsz' 40;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+
+    .nav-link {
+        font-size: 0.95rem;
+    }
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background: #f5f6fa;
+}
+
+h2 {
+    text-align: center;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+th,
+td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+th {
+    background: #406ff3;
+    color: white;
+}
+
+tr:hover {
+    background: #f1f1f1;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+.btn {
+    background: #406ff3;
+    color: white;
+    padding: 6px 12px;
+    text-decoration: none;
+    border-radius: 6px;
+}
+
+.btn:hover {
+    background: #335ed1;
+    color: white;
+}
+
+input[type=text],
+input[type=password] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+h2,
+h3 {
+    color: #263238;
+    margin-bottom: 20px;
+}
+
+table th,
+table td {
+    text-align: center;
+    /* Center text horizontally */
+    vertical-align: middle;
+    /* Center text vertically */
+}
+td .btn {
+  display: inline-block;
+  margin: 0 5px;   /* space between buttons */
+}
+
+td {
+  text-align: center;  /* center all content in table cells */
+}
+.action-buttons {
+  display: flex;
+  justify-content: center;  /* center horizontally */
+  gap: 5px;                 /* space between buttons */
+}
+.action-buttons {
+    display: flex;
+    justify-content: center;  /* center horizontally */
+    gap: 5px;                 /* space between buttons */
+    align-items: center;      /* vertically center */
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 0.9rem;
+}
