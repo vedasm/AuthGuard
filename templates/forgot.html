@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Forgot Password
+{% endblock %}
+
+{% block main %}
+    <h1>Forgot Password</h1>
+    <br>
+    <p class="text-muted">Enter your email address and we'll send you a link to reset your password.</p>
+    <form action="/forgot" method="post">
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="email" placeholder="Email" type="email" required>
+        </div>
+        <button class="btn btn-primary" type="submit">🔗Send Reset Link</button>
+    </form>
+    <br>
+    <br>
+    <p class="text-muted">
+        <a href="{{ url_for('login') }}" class="text-decoration-none">⬅️Back to Login</a>
+    </p>
+{% endblock %}

@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block main %}
-    <h2>Login</h2>
+    <h1>Login</h1>
     <br>
     <form action="/login" method="post">
         <div class="mb-3">
@@ -14,6 +14,12 @@
         <div class="mb-3">
             <input class="form-control mx-auto w-auto" name="password" placeholder="Password" type="password">
         </div>
+
         <button class="btn btn-primary" type="submit">Log In</button>
+        <br>
+        <br>
+        <p class="text-muted">
+            <a href="{{ url_for('forgot') }}" class="text-decoration-none">Forgot your password❓</a>
+        </p>
     </form>
 {% endblock %}
