@@ -5,21 +5,135 @@
 {% endblock %}
 
 {% block main %}
-    <h2>Register</h2>
-    <br>
-    <form action="/register" method="post">
-        <div class="mb-3">
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="username" placeholder="Username" type="text">
+    <div class="container" style="max-width: 450px;">
+        <div class="page-header">
+            <div class="header-icon">
+                <span class="material-symbols-outlined">person_add</span>
+            </div>
+            <h2>Create Account</h2>
+            <p class="page-subtitle">Join AuthGuard and secure your credentials</p>
         </div>
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" name="email" placeholder="Email" type="email">
+        
+        <div class="form-card">
+            <form action="/register" method="post">
+                <div class="mb-3">
+                    <label for="username" class="form-label">
+                        <span class="material-symbols-outlined label-icon">person</span>
+                        Username
+                    </label>
+                    <input autocomplete="off" autofocus class="form-control" id="username" name="username" placeholder="Choose a username" type="text" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">
+                        <span class="material-symbols-outlined label-icon">email</span>
+                        Email
+                    </label>
+                    <input class="form-control" id="email" name="email" placeholder="your.email@example.com" type="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">
+                        <span class="material-symbols-outlined label-icon">key</span>
+                        Password
+                    </label>
+                    <input class="form-control" id="password" name="password" placeholder="Create a strong password" type="password" required>
+                </div>
+                <div class="mb-3">
+                    <label for="confirmation" class="form-label">
+                        <span class="material-symbols-outlined label-icon">verified_user</span>
+                        Confirm Password
+                    </label>
+                    <input class="form-control" id="confirmation" name="confirmation" placeholder="Re-enter your password" type="password" required>
+                </div>
+                <button class="btn btn-primary w-100" type="submit">
+                    <span class="material-symbols-outlined">how_to_reg</span>
+                    Create Account
+                </button>
+            </form>
         </div>
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" name="password" placeholder="Password" type="password">
+        
+        <div class="login-prompt">
+            <p>Already have an account? <a href="{{ url_for('login') }}">Sign in here</a></p>
         </div>
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" name="confirmation" placeholder="Confirm Password" type="password">
-        </div>
-        <button class="btn btn-primary" type="submit">Register</button>
-    </form>
+    </div>
+
+    <style>
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        .header-icon .material-symbols-outlined {
+            font-size: 48px;
+            color: white;
+        }
+
+        .page-subtitle {
+            color: #718096;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .form-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .label-icon {
+            font-size: 20px;
+            color: #667eea;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn .material-symbols-outlined {
+            font-size: 20px;
+        }
+
+        .login-prompt {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #718096;
+        }
+
+        .login-prompt a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .login-prompt a:hover {
+            color: #764ba2;
+        }
+    </style>
 {% endblock %}
