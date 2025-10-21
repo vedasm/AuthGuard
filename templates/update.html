@@ -3,24 +3,126 @@
 {% block title %}Edit Credential - AuthGuard{% endblock %}
 
 {% block main %}
-<div class="container">
-    <h2>Edit Credential</h2>
-    <form method="POST">
-        <div class="mb-3">
-            <label for="website" class="form-label">Website</label>
-            <input type="text" class="form-control" id="website" name="website" value="{{ cred['website'] }}" disabled>
+<div class="container" style="max-width: 500px;">
+    <div class="page-header">
+        <div class="header-icon">
+            <span class="material-symbols-outlined">edit</span>
         </div>
-        <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" class="form-control" id="username" name="username" value="{{ cred['username'] }}" required>
-        </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" name="password" value="{{ cred['password_encrypted'] }}" required>
-        </div>
-        <button class="btn btn-primary" type="submit">Update Credential</button>
-    </form>
-    <br>
-    <a href="{{ url_for('vault') }}" class="btn w-100 mt-2">Back to Vault</a>
+        <h2>Edit Credential</h2>
+        <p class="page-subtitle">Update your account information</p>
+    </div>
+    
+    <div class="form-card">
+        <form method="POST">
+            <div class="mb-3">
+                <label for="website" class="form-label">
+                    <span class="material-symbols-outlined label-icon">language</span>
+                    Website
+                </label>
+                <input type="text" class="form-control" id="website" name="website" value="{{ cred['website'] }}" disabled>
+                <small class="form-text">Website cannot be changed</small>
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">
+                    <span class="material-symbols-outlined label-icon">person</span>
+                    Username
+                </label>
+                <input type="text" class="form-control" id="username" name="username" value="{{ cred['username'] }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">
+                    <span class="material-symbols-outlined label-icon">key</span>
+                    Password
+                </label>
+                <input type="password" class="form-control" id="password" name="password" value="{{ cred['password_encrypted'] }}" required>
+            </div>
+            <button class="btn btn-primary w-100" type="submit">
+                <span class="material-symbols-outlined">save</span>
+                Update Credential
+            </button>
+        </form>
+    </div>
+    
+    <a href="{{ url_for('vault') }}" class="btn btn-secondary w-100 mt-3">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Back to Vault
+    </a>
 </div>
+
+<style>
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .header-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+    }
+
+    .header-icon .material-symbols-outlined {
+        font-size: 48px;
+        color: white;
+    }
+
+    .page-subtitle {
+        color: #718096;
+        font-size: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .form-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e2e8f0;
+    }
+
+    .form-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .label-icon {
+        font-size: 20px;
+        color: #667eea;
+    }
+
+    .form-text {
+        color: #a0aec0;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .form-control:disabled {
+        background: #f7fafc;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn .material-symbols-outlined {
+        font-size: 20px;
+    }
+</style>
 {% endblock %}
