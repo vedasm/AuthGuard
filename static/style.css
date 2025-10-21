@@ -50,17 +50,19 @@ body {
     }
 }
 
-body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    background: #f5f6fa;
-}
-
 h2 {
     text-align: center;
+    color: #263238;
+    margin-bottom: 20px;
 }
 
-table {
+h3 {
+    color: #263238;
+    margin-bottom: 20px;
+}
+
+/* Custom table styling - only apply if NOT using Bootstrap table classes */
+table:not(.table) {
     width: 100%;
     border-collapse: collapse;
     background: white;
@@ -68,20 +70,40 @@ table {
     margin-top: 20px;
 }
 
-th,
-td {
+table:not(.table) th,
+table:not(.table) td {
     padding: 12px;
     border-bottom: 1px solid #ddd;
-    text-align: left;
+    text-align: center;
+    vertical-align: middle;
 }
 
-th {
+table:not(.table) th {
     background: #406ff3;
     color: white;
 }
 
-tr:hover {
+table:not(.table) tr:hover {
     background: #f1f1f1;
+}
+
+/* Bootstrap table overrides */
+.table {
+    background: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table thead th {
+    background: #406ff3;
+    color: white;
+    text-align: center;
+    vertical-align: middle;
+    border: none;
+}
+
+.table td {
+    text-align: center;
+    vertical-align: middle;
 }
 
 .container {
@@ -95,6 +117,7 @@ tr:hover {
     padding: 6px 12px;
     text-decoration: none;
     border-radius: 6px;
+    border: none;
 }
 
 .btn:hover {
@@ -102,7 +125,16 @@ tr:hover {
     color: white;
 }
 
+.btn-danger {
+    background: #dc3545;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
 input[type=text],
+input[type=email],
 input[type=password] {
     width: 100%;
     padding: 10px;
@@ -116,40 +148,24 @@ input[type=password] {
     overflow-x: auto;
 }
 
-h2,
-h3 {
-    color: #263238;
-    margin-bottom: 20px;
-}
-
-table th,
-table td {
-    text-align: center;
-    /* Center text horizontally */
-    vertical-align: middle;
-    /* Center text vertically */
-}
-td .btn {
-  display: inline-block;
-  margin: 0 5px;   /* space between buttons */
-}
-
-td {
-  text-align: center;  /* center all content in table cells */
-}
-.action-buttons {
-  display: flex;
-  justify-content: center;  /* center horizontally */
-  gap: 5px;                 /* space between buttons */
-}
+/* Action buttons container */
 .action-buttons {
     display: flex;
-    justify-content: center;  /* center horizontally */
-    gap: 5px;                 /* space between buttons */
-    align-items: center;      /* vertically center */
+    justify-content: center;
+    gap: 5px;
+    align-items: center;
 }
 
 .btn-sm {
     padding: 4px 8px;
     font-size: 0.9rem;
+}
+
+/* Form spacing */
+.form-control {
+    margin-bottom: 0;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
 }
