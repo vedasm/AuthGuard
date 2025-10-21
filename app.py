@@ -44,7 +44,7 @@ else:
 # Get email configuration from environment variables
 MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
 MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-TESTING_MODE = os.environ.get('TESTING_MODE', 'False').lower() == 'true'
+TESTING_MODE = os.environ.get('TESTING_MODE', 'False') == 'True'
 
 # Validate that email credentials are provided
 if not MAIL_USERNAME or not MAIL_PASSWORD:
