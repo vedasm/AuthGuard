@@ -262,11 +262,12 @@ def add():
             flash("All fields are required!", "error")
             return redirect(url_for("add"))
 
-        db_execute(
+        db = get_db()
+        db.execute(
             "INSERT INTO credentials (user_id, website, username, password_encrypted) VALUES (?, ?, ?, ?)",
-            (g.user["id"], website, username, password),
-            commit=True
+            (g.user["id"], website, username, password)
         )
+        db.commit()
         flash("Credential added successfully!", "success")
         return redirect("/")
 
