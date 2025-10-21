@@ -5,21 +5,155 @@
 {% endblock %}
 
 {% block main %}
-    <h1>Login</h1>
-    <br>
-    <form action="/login" method="post">
-        <div class="mb-3">
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="username" placeholder="Username" type="text">
+    <div class="container" style="max-width: 450px;">
+        <div class="page-header">
+            <div class="header-icon">
+                <span class="material-symbols-outlined">login</span>
+            </div>
+            <h2>Welcome Back</h2>
+            <p class="page-subtitle">Sign in to access your secure vault</p>
         </div>
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" name="password" placeholder="Password" type="password">
-        </div>
+        
+        <div class="form-card">
+            <form action="/login" method="post">
+                <div class="mb-3">
+                    <label for="username" class="form-label">
+                        <span class="material-symbols-outlined label-icon">person</span>
+                        Username
+                    </label>
+                    <input autocomplete="off" autofocus class="form-control" id="username" name="username" placeholder="Enter your username" type="text" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">
+                        <span class="material-symbols-outlined label-icon">key</span>
+                        Password
+                    </label>
+                    <input class="form-control" id="password" name="password" placeholder="Enter your password" type="password" required>
+                </div>
 
-        <button class="btn btn-primary" type="submit">Log In</button>
-        <br>
-        <br>
-        <p class="text-muted">
-            <a href="{{ url_for('forgot') }}" class="text-decoration-none">Forgot your password❓</a>
-        </p>
-    </form>
+                <button class="btn btn-primary w-100" type="submit">
+                    <span class="material-symbols-outlined">lock_open</span>
+                    Sign In
+                </button>
+            </form>
+            
+            <div class="form-footer">
+                <a href="{{ url_for('forgot') }}" class="forgot-link">
+                    <span class="material-symbols-outlined">help</span>
+                    Forgot your password?
+                </a>
+            </div>
+        </div>
+        
+        <div class="register-prompt">
+            <p>Don't have an account? <a href="{{ url_for('register') }}">Create one now</a></p>
+        </div>
+    </div>
+
+    <style>
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        .header-icon .material-symbols-outlined {
+            font-size: 48px;
+            color: white;
+        }
+
+        .page-subtitle {
+            color: #718096;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .form-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .label-icon {
+            font-size: 20px;
+            color: #667eea;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn .material-symbols-outlined {
+            font-size: 20px;
+        }
+
+        .form-footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .forgot-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s ease;
+        }
+
+        .forgot-link:hover {
+            color: #764ba2;
+            gap: 0.5rem;
+        }
+
+        .forgot-link .material-symbols-outlined {
+            font-size: 18px;
+        }
+
+        .register-prompt {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #718096;
+        }
+
+        .register-prompt a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .register-prompt a:hover {
+            color: #764ba2;
+        }
+    </style>
 {% endblock %}
