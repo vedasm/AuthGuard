@@ -1,5 +1,5 @@
 
-MAIL_USERNAME = 'sivamanimuthu.veda@gmail.com'
-MAIL_PASSWORD = 'oeig llau xafu ugkx'
+MAIL_USERNAME = your_email@example.com    
+MAIL_PASSWORD = password
 TESTING_MODE = False
 
