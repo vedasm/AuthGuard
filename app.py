@@ -482,42 +482,56 @@ def forgot():
 
 @app.route("/reset-password/<token>", methods=["GET", "POST"])
 def reset_password(token):
-    token_record = db_query_one(
-        "SELECT * FROM password_reset_tokens WHERE token = ? AND used = 0 AND expires_at > ?",
-        (token, datetime.datetime.now())
-    )
-
-    if not token_record:
-        flash("Invalid or expired reset token!", "error")
-        return redirect(url_for("login"))
-
-    if request.method == "POST":
-        new_password = request.form.get("new_password")
-        confirm_password = request.form.get("confirm_password")
-
-        if not new_password or not confirm_password:
-            flash("All fields are required!", "error")
-            return redirect(url_for("reset_password", token=token))
-
-        if new_password != confirm_password:
-            flash("Passwords do not match!", "error")
-            return redirect(url_for("reset_password", token=token))
-
-        new_hash = generate_password_hash(new_password)
-        db_execute(
-            "UPDATE users SET password_hash = ? WHERE id = ?",
-            (new_hash, token_record["user_id"]),
-            commit=True
+    try:
+        current_time = datetime.datetime.now()
+        token_record = db_query_one(
+            "SELECT * FROM password_reset_tokens WHERE token = ? AND used = 0",
+            (token,)
         )
-        db_execute(
-            "UPDATE password_reset_tokens SET used = 1 WHERE id = ?",
-            (token_record["id"],),
-            commit=True
-        )
-        flash("Password reset successfully! You can now log in with your new password.", "success")
-        return redirect(url_for("login"))
 
-    return render_template("reset_password.html", token=token)
+        if not token_record:
+            flash("Invalid or already used reset token!", "error")
+            return redirect(url_for("login"))
+        expires_at = token_record["expires_at"]
+        if isinstance(expires_at, str):
+            expires_at = datetime.datetime.fromisoformat(expires_at.replace('Z', '+00:00'))
+        
+        if current_time > expires_at:
+            flash("This reset link has expired. Please request a new one.", "error")
+            return redirect(url_for("forgot"))
+
+        if request.method == "POST":
+            new_password = request.form.get("new_password")
+            confirm_password = request.form.get("confirm_password")
+
+            if not new_password or not confirm_password:
+                flash("All fields are required!", "error")
+                return redirect(url_for("reset_password", token=token))
+
+            if new_password != confirm_password:
+                flash("Passwords do not match!", "error")
+                return redirect(url_for("reset_password", token=token))
+
+            new_hash = generate_password_hash(new_password)
+            db_execute(
+                "UPDATE users SET password_hash = ? WHERE id = ?",
+                (new_hash, token_record["user_id"]),
+                commit=True
+            )
+            db_execute(
+                "UPDATE password_reset_tokens SET used = 1 WHERE id = ?",
+                (token_record["id"],),
+                commit=True
+            )
+            
+            flash("Password reset successfully! You can now log in with your new password.", "success")
+            return redirect(url_for("login"))
+
+        return render_template("reset_password.html", token=token)
+        
+    except Exception as e:
+        flash(f"Error processing reset request: {str(e)}", "error")
+        return redirect(url_for("login"))
 
 
 if __name__ == '__main__':
