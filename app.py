@@ -5,24 +5,53 @@ from functools import wraps
 import sqlite3
 from flask import Flask, flash, redirect, render_template, request, session, g, url_for
 from flask_session import Session
-from werkzeug.security import check_password_hash, generate_password_hash
-from dotenv import load_dotenv
-from email_service import email_service
 from flask_mail import Mail, Message
+from werkzeug.security import check_password_hash, generate_password_hash
+from email_service import email_service
+from dotenv import load_dotenv
+
+IS_VERCEL = bool(os.environ.get('VERCEL'))
+
+try:
+    if not IS_VERCEL:
+        load_dotenv('environment.txt')
+except ImportError:
+    pass
 
 app = Flask(__name__)
 
-load_dotenv() 
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    try:
+        from config import SECRET_KEY as CONFIG_SECRET_KEY
+        SECRET_KEY = CONFIG_SECRET_KEY
+    except Exception:
+        SECRET_KEY = secrets.token_hex(32)
 
-DATABASESQL = os.getenv("DATABASE")
-
+app.config['SECRET_KEY'] = SECRET_KEY
 app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
+
+if not IS_VERCEL:
+    app.config["SESSION_TYPE"] = "filesystem"
+    Session(app)
+else:
+    app.config['SESSION_COOKIE_SECURE'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
 
 MAIL_USERNAME = os.environ.get('MAIL_USERNAME', 'your-email@gmail.com')
 MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'your-app-password')
-TESTING_MODE = False
+TESTING_MODE = os.environ.get('TESTING_MODE', 'False').lower() == 'true'
+
+if MAIL_USERNAME == 'your-email@gmail.com':
+    try:
+        from config import MAIL_USERNAME as config_username, MAIL_PASSWORD as config_password, TESTING_MODE as config_testing
+        MAIL_USERNAME = config_username
+        MAIL_PASSWORD = config_password
+        TESTING_MODE = config_testing
+    except ImportError:
+        pass
+
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
@@ -33,52 +62,65 @@ app.config['MAIL_DEFAULT_SENDER'] = MAIL_USERNAME
 
 mail = Mail(app)
 
-DATABASE = DATABASESQL
+DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///password.db')
 
-def init_db():
-    db = sqlite3.connect(DATABASE)
-    cursor = db.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            email TEXT
-        )
-    """)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS credentials (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            website TEXT,
-            username TEXT,
-            password_encrypted TEXT,
-            FOREIGN KEY (user_id) REFERENCES users (id)
-        )
-    """)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS password_reset_tokens (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            token TEXT NOT NULL,
-            expires_at TEXT NOT NULL,
-            used INTEGER DEFAULT 0,
-            FOREIGN KEY(user_id) REFERENCES users(id)
-        )
-    """)
+def _is_postgres(url: str) -> bool:
+    return url.startswith('postgres://') or url.startswith('postgresql://')
 
-    db.commit()
-    db.close()
+IS_POSTGRES = _is_postgres(DATABASE_URL)
 
-
-if not os.path.exists(DATABASE):
-    init_db()
+if IS_POSTGRES:
+    DATABASE = DATABASE_URL
+else:
+    DATABASE = "password.db"
 
 def get_db():
     if "db" not in g:
-        g.db = sqlite3.connect(DATABASE)
-        g.db.row_factory = sqlite3.Row
+        if IS_POSTGRES:
+            import psycopg2
+            from psycopg2.extras import RealDictCursor
+            g.db = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+        else:
+            g.db = sqlite3.connect(DATABASE)
+            g.db.row_factory = sqlite3.Row
     return g.db
+
+def _normalize_query(query: str) -> str:
+    return query.replace('?', '%s') if IS_POSTGRES else query
+
+def db_execute(query, params=(), commit=False):
+    db = get_db()
+    if IS_POSTGRES:
+        cur = db.cursor()
+        cur.execute(_normalize_query(query), params)
+    else:
+        cur = db.execute(query, params)
+    if commit:
+        db.commit()
+    return cur
+
+def db_commit():
+    db = get_db()
+    db.commit()
+
+
+def db_query_one(query, params=()):
+    cur = db_execute(query, params)
+    return cur.fetchone()
+
+
+def db_query_all(query, params=()):
+    cur = db_execute(query, params)
+    return cur.fetchall()
+
+try:
+    from init_db import init_sqlite_db, init_postgresql_db
+    if IS_POSTGRES:
+        init_postgresql_db()
+    else:
+        init_sqlite_db()
+except Exception as e:
+    print(f"Database initialization skipped: {e}")
 
 
 @app.teardown_appcontext
@@ -94,8 +136,7 @@ def load_user():
     if user_id is None:
         g.user = None
     else:
-        db = get_db()
-        row = db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+        row = db_query_one("SELECT * FROM users WHERE id = ?", (user_id,))
         g.user = row
 
 
@@ -122,31 +163,35 @@ def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+        
         if not username:
             flash("Username is required!", "error")
             return redirect(url_for("login"))
         elif not password:
             flash("must provide password", "error")
             return redirect(url_for("login"))
-        db = get_db()
-        row = db.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+        
+        row = db_query_one("SELECT * FROM users WHERE username = ?", (username,))
+        
         if row is None or not check_password_hash(row["password_hash"], password):
             flash("invalid username and/or password", "error")
             return redirect(url_for("login"))
+        
         session["user_id"] = row["id"]
         return redirect("/")
     else:
         return render_template("login.html")
 
 
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         username = request.form.get("username")
+        email = request.form.get("email")
         password = request.form.get("password")
         confirmation = request.form.get("confirmation")
-        email = request.form.get("email")
-        db = get_db()
+        
         if not username:
             flash("Username is required!", "error")
             return redirect(url_for("register"))
@@ -162,18 +207,27 @@ def register():
         elif password != confirmation:
             flash("Password doesn't Match!", "error")
             return redirect(url_for("register"))
-        
 
-        row = db.execute("SELECT username FROM users WHERE username = ?", (username,)).fetchone()
+        # Check if username already exists
+        row = db_query_one("SELECT username FROM users WHERE username = ?", (username,))
         if row is not None:
             flash("Username Already Present", "error")
             return redirect(url_for("register"))
+        
+        # Check if email already exists
+        row = db_query_one("SELECT email FROM users WHERE email = ?", (email,))
+        if row is not None:
+            flash("Email Already Registered", "error")
+            return redirect(url_for("register"))
 
         hash_pw = generate_password_hash(password)
-        db.execute("INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)", (username, hash_pw, email))
-        db.commit()
+        db_execute(
+            "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
+            (username, email, hash_pw),
+            commit=True,
+        )
 
-        row = db.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+        row = db_query_one("SELECT * FROM users WHERE username = ?", (username,))
         session["user_id"] = row["id"]
 
         return redirect("/")
@@ -184,10 +238,9 @@ def register():
 @app.route("/")
 @login_required
 def vault():
-    db = get_db()
-    credentials = db.execute(
+    credentials = db_query_all(
         "SELECT * FROM credentials WHERE user_id = ?", (g.user["id"],)
-    ).fetchall()
+    )
     return render_template("vault.html", credentials=credentials)
 
 
@@ -209,12 +262,11 @@ def add():
             flash("All fields are required!", "error")
             return redirect(url_for("add"))
 
-        db = get_db()
-        db.execute(
+        db_execute(
             "INSERT INTO credentials (user_id, website, username, password_encrypted) VALUES (?, ?, ?, ?)",
-            (g.user["id"], website, username, password)
+            (g.user["id"], website, username, password),
+            commit=True
         )
-        db.commit()
         flash("Credential added successfully!", "success")
         return redirect("/")
 
@@ -224,8 +276,6 @@ def add():
 @app.route("/account", methods=["GET", "POST"])
 @login_required
 def account():
-    db = get_db()
-
     if request.method == "POST":
         if "change_password" in request.form:
             prev_password = request.form.get("prev_password")
@@ -234,12 +284,13 @@ def account():
             if not prev_password or not new_password:
                 flash("All fields are required!", "error")
                 return redirect(url_for("account"))
+            
             if not check_password_hash(g.user["password_hash"], prev_password):
                 flash("Previous password is incorrect", "error")
                 return redirect(url_for("account"))
+            
             new_hash = generate_password_hash(new_password)
-            db.execute("UPDATE users SET password_hash = ? WHERE id = ?", (new_hash, g.user["id"]))
-            db.commit()
+            db_execute("UPDATE users SET password_hash = ? WHERE id = ?", (new_hash, g.user["id"]), commit=True)
             flash("Password changed successfully!", "success")
             return redirect(url_for("account"))
 
@@ -249,35 +300,31 @@ def account():
                 flash("Email cannot be empty!", "error")
                 return redirect(url_for("account"))
 
-            # check if email is already taken
-            existing = db.execute("SELECT id FROM users WHERE email = ?", (new_email,)).fetchone()
+            existing = db_query_one("SELECT id FROM users WHERE email = ?", (new_email,))
             if existing:
                 flash("This email is already in use!", "error")
                 return redirect(url_for("account"))
 
-            db.execute("UPDATE users SET email = ? WHERE id = ?", (new_email, g.user["id"]))
-            db.commit()
+            db_execute("UPDATE users SET email = ? WHERE id = ?", (new_email, g.user["id"]), commit=True)
             flash("Email updated successfully!", "success")
             return redirect(url_for("account"))
 
         elif "delete_account" in request.form:
-            db.execute("DELETE FROM credentials WHERE user_id = ?", (g.user["id"],))
-            db.execute("DELETE FROM users WHERE id = ?", (g.user["id"],))
-            db.commit()
+            db_execute("DELETE FROM credentials WHERE user_id = ?", (g.user["id"],), commit=True)
+            db_execute("DELETE FROM users WHERE id = ?", (g.user["id"],), commit=True)
             session.clear()
             flash("Account deleted successfully!", "success")
             return redirect(url_for("register"))
-
     return render_template("account.html")
+
 
 @app.route("/update/<int:cred_id>", methods=["GET", "POST"])
 @login_required
 def update_credential(cred_id):
-    db = get_db()
-    cred = db.execute(
+    cred = db_query_one(
         "SELECT * FROM credentials WHERE id = ? AND user_id = ?", 
         (cred_id, g.user["id"])
-    ).fetchone()
+    )
 
     if not cred:
         flash("Credential not found!", "error")
@@ -290,27 +337,27 @@ def update_credential(cred_id):
             flash("All fields are required!", "error")
             return redirect(url_for("update_credential", cred_id=cred_id))
 
-        db.execute(
+        db_execute(
             "UPDATE credentials SET username = ?, password_encrypted = ? WHERE id = ?",
-            (username, password, cred_id)
+            (username, password, cred_id),
+            commit=True
         )
-        db.commit()
         flash("Credential updated successfully!", "success")
         return redirect(url_for("vault"))
-
     return render_template("update.html", cred=cred)
+
 
 @app.route("/delete/<int:cred_id>", methods=["POST"])
 @login_required
 def delete_credential(cred_id):
-    db = get_db()
-    db.execute(
+    db_execute(
         "DELETE FROM credentials WHERE id = ? AND user_id = ?",
-        (cred_id, g.user["id"])
+        (cred_id, g.user["id"]),
+        commit=True
     )
-    db.commit()
     flash("Credential deleted successfully!", "success")
     return redirect(url_for("vault"))
+
 
 @app.route("/forgot", methods=["GET", "POST"])
 def forgot():
@@ -320,19 +367,17 @@ def forgot():
             flash("Email is required!", "error")
             return redirect(url_for("forgot"))
         
-        db = get_db()
-        user = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+        user = db_query_one("SELECT * FROM users WHERE email = ?", (email,))
         
         if user:
             token = secrets.token_urlsafe(32)
             expires_at = datetime.datetime.now() + datetime.timedelta(hours=1)
             
-            db.execute("INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)",
-                       (user["id"], token, expires_at))
-            db.commit()
+            db_execute("INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)",
+                       (user["id"], token, expires_at), commit=True)
             
             reset_url = url_for('reset_password', token=token, _external=True)
-            msg_body = f"""
+            msg_body = f'''
                 <html>
                 <head>
                     <style>
@@ -379,18 +424,18 @@ def forgot():
                     <div class="container">
                         <h2>Password Reset Request</h2>
                         <p>Hello {user['username']},</p>
-                        <p>You have requested to reset your password for <strong>PassGuard</strong>.</p>
+                        <p>You have requested to reset your password for <strong>AuthGuard</strong>.</p>
                         <p>Click the button below to reset your password. This link will expire in <strong>1 hour</strong>:</p>
                         <a href="{reset_url}" class="button">Reset Password</a>
                         <p>If you did not request this password reset, please ignore this email.</p>
                         <div class="footer">
                             Best regards,<br>
-                            <strong>PassGuard Team</strong>
+                            <strong>AuthGuard Team</strong>
                         </div>
                     </div>
                 </body>
                 </html>
-                """
+                '''
             
             try:
                 if TESTING_MODE:
@@ -399,7 +444,7 @@ def forgot():
                 else:
                     success, message = email_service.send_email(
                         to_email=email,
-                        subject='Password Reset Request - PassGuard',
+                        subject='Password Reset Request - AuthGuard',
                         body=msg_body,
                         from_email=MAIL_USERNAME,
                         password=MAIL_PASSWORD,
@@ -421,16 +466,15 @@ def forgot():
             flash("No account found with that email address.", "error")
         
         return redirect(url_for("forgot"))
-    
+        
     return render_template("forgot.html")
 
 @app.route("/reset-password/<token>", methods=["GET", "POST"])
 def reset_password(token):
-    db = get_db()
-    token_record = db.execute(
-        "SELECT * FROM password_reset_tokens WHERE token = ? AND used = FALSE AND expires_at > ?",
+    token_record = db_query_one(
+        "SELECT * FROM password_reset_tokens WHERE token = ? AND used = 0 AND expires_at > ?",
         (token, datetime.datetime.now())
-    ).fetchone()
+    )
 
     if not token_record:
         flash("Invalid or expired reset token!", "error")
@@ -449,19 +493,21 @@ def reset_password(token):
             return redirect(url_for("reset_password", token=token))
 
         new_hash = generate_password_hash(new_password)
-        db.execute(
+        db_execute(
             "UPDATE users SET password_hash = ? WHERE id = ?",
-            (new_hash, token_record["user_id"])
+            (new_hash, token_record["user_id"]),
+            commit=True
         )
-        db.execute(
-            "UPDATE password_reset_tokens SET used = TRUE WHERE id = ?",
-            (token_record["id"],)
+        db_execute(
+            "UPDATE password_reset_tokens SET used = 1 WHERE id = ?",
+            (token_record["id"],),
+            commit=True
         )
-        db.commit()
         flash("Password reset successfully! You can now log in with your new password.", "success")
         return redirect(url_for("login"))
 
     return render_template("reset_password.html", token=token)
 
+
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=False)
