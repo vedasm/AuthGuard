@@ -5,29 +5,45 @@
 }
 
 body {
-    font-family: "Segoe UI", Arial, sans-serif;
-    color: #263238;
-    background-color: #f9f9f9;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1a1a1a;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
 }
 
-/* Navbar */
+/* Navbar - Modern Glass Effect */
+.navbar {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
 .navbar-brand {
     font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .nav-link {
     font-size: 1rem;
     font-weight: 500;
-    color: #263238 !important;
-    transition: color 0.2s ease;
+    color: #4a5568 !important;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem !important;
+    border-radius: 8px;
 }
 
 .nav-link:hover {
-    color: #406ff3 !important;
+    color: #667eea !important;
+    background: rgba(102, 126, 234, 0.1);
 }
 
 .nav-item {
-    font-size: 20px;
+    font-size: 16px;
 }
 
 /* Icon styling */
@@ -39,6 +55,249 @@ body {
         'opsz' 40;
 }
 
+/* Main Container - Card Style */
+main.container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    padding: 2.5rem !important;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+h2 {
+    text-align: center;
+    color: #1a1a1a;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    font-size: 2rem;
+}
+
+h3 {
+    color: #4a5568;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+/* Modern Table Styling */
+.table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table thead th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-align: center;
+    vertical-align: middle;
+    border: none;
+    padding: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.table tbody tr {
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.table tbody tr:hover {
+    background: rgba(102, 126, 234, 0.05);
+    transform: scale(1.01);
+}
+
+.table td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 1rem;
+    color: #4a5568;
+}
+
+/* Modern Button Styles */
+.btn {
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 0.95rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    color: white;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 87, 108, 0.5);
+    color: white;
+}
+
+.btn-sm {
+    padding: 0.4rem 1rem;
+    font-size: 0.875rem;
+}
+
+.btn.w-100 {
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Modern Form Inputs */
+.form-control {
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f7fafc;
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: white;
+    outline: none;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+input[type=text],
+input[type=email],
+input[type=password] {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f7fafc;
+}
+
+input[type=text]:focus,
+input[type=email]:focus,
+input[type=password]:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: white;
+    outline: none;
+}
+
+/* Action buttons container */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Alert Styling */
+.alert {
+    border-radius: 12px;
+    border: none;
+    padding: 1rem 1.5rem;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+    color: #c53030;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+    color: #22543d;
+}
+
+.alert-primary {
+    background: linear-gradient(135deg, #ebf4ff 0%, #c3dafe 100%);
+    color: #2c5282;
+}
+
+/* Table responsive */
+.table-responsive {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Container customization */
+.container {
+    max-width: 900px;
+}
+
+/* Password visibility styling */
+.password, .actual-password {
+    font-family: 'Courier New', monospace;
+    padding: 0.25rem 0.5rem;
+    background: #f7fafc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+/* Link styling */
+a {
+    color: #667eea;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+a:hover {
+    color: #764ba2;
+}
+
+/* Horizontal rule */
+hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+    margin: 2rem 0;
+}
+
+/* Form spacing */
+.mb-3 {
+    margin-bottom: 1.25rem !important;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .navbar-brand {
@@ -48,124 +307,31 @@ body {
     .nav-link {
         font-size: 0.95rem;
     }
+    
+    main.container {
+        padding: 1.5rem !important;
+        margin-top: 1rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .btn-sm {
+        width: 100%;
+    }
 }
 
-h2 {
-    text-align: center;
-    color: #263238;
-    margin-bottom: 20px;
+/* Smooth transitions for all interactive elements */
+* {
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-h3 {
-    color: #263238;
-    margin-bottom: 20px;
-}
-
-/* Custom table styling - only apply if NOT using Bootstrap table classes */
-table:not(.table) {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-}
-
-table:not(.table) th,
-table:not(.table) td {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-    text-align: center;
-    vertical-align: middle;
-}
-
-table:not(.table) th {
-    background: #406ff3;
-    color: white;
-}
-
-table:not(.table) tr:hover {
-    background: #f1f1f1;
-}
-
-/* Bootstrap table overrides */
-.table {
-    background: white;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.table thead th {
-    background: #406ff3;
-    color: white;
-    text-align: center;
-    vertical-align: middle;
-    border: none;
-}
-
-.table td {
-    text-align: center;
-    vertical-align: middle;
-}
-
-.container {
-    max-width: 900px;
-    margin: auto;
-}
-
-.btn {
-    background: #406ff3;
-    color: white;
-    padding: 6px 12px;
-    text-decoration: none;
-    border-radius: 6px;
-    border: none;
-}
-
-.btn:hover {
-    background: #335ed1;
-    color: white;
-}
-
-.btn-danger {
-    background: #dc3545;
-}
-
-.btn-danger:hover {
-    background: #c82333;
-}
-
-input[type=text],
-input[type=email],
-input[type=password] {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-}
-
-.table-responsive {
-    overflow-x: auto;
-}
-
-/* Action buttons container */
-.action-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 5px;
-    align-items: center;
-}
-
-.btn-sm {
-    padding: 4px 8px;
-    font-size: 0.9rem;
-}
-
-/* Form spacing */
-.form-control {
-    margin-bottom: 0;
-}
-
-.mb-3 {
-    margin-bottom: 1rem !important;
+button, a, input {
+    transition: all 0.3s ease;
 }
