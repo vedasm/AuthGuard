@@ -310,11 +310,22 @@ def account():
             return redirect(url_for("account"))
 
         elif "delete_account" in request.form:
-            db_execute("DELETE FROM credentials WHERE user_id = ?", (g.user["id"],), commit=True)
-            db_execute("DELETE FROM users WHERE id = ?", (g.user["id"],), commit=True)
-            session.clear()
-            flash("Account deleted successfully!", "success")
-            return redirect(url_for("register"))
+            try:
+                db_execute("DELETE FROM credentials WHERE user_id = ?", (g.user["id"],), commit=True)
+                try:
+                    db_execute("DELETE FROM password_reset_tokens WHERE user_id = ?", (g.user["id"],), commit=True)
+                except:
+                    pass
+                db_execute("DELETE FROM users WHERE id = ?", (g.user["id"],), commit=True)
+                session.clear()
+                
+                flash("Account deleted successfully!", "success")
+                return redirect(url_for("register"))
+                
+            except Exception as e:
+                flash(f"Error deleting account: {str(e)}", "error")
+                return redirect(url_for("account"))
+                
     return render_template("account.html")
 
 
