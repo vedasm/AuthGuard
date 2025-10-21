@@ -5,23 +5,24 @@
 {% endblock %}
 
 {% block main %}
-
-    <div class="container">
+    <div class="container" style="max-width: 500px;">
         <h2>Add New Credential</h2>
         <form method="POST">
-            <label>Website</label>
-            <input type="text" name="website" required>
-            <br>
-            <label>Username</label>
-            <input type="text" name="username" required>
-            <br>
-            <label>Password</label>
-            <input name="password" placeholder="Password" type="password">
-            <br>
-            <button class="btn btn-primary" type="submit">Add Credential</button>
+            <div class="mb-3">
+                <label for="website" class="form-label">Website</label>
+                <input type="text" class="form-control" id="website" name="website" required>
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+            </div>
+            <button class="btn btn-primary w-100" type="submit">Add Credential</button>
         </form>
         <br>
-        <a href="/">Back to Vault</a>
-
+        <a href="/" class="btn w-100 mt-2">Back to Vault</a>
     </div>
 {% endblock %}
