@@ -307,139 +307,58 @@ def forgot():
     if request.method == "POST":
         email = request.form.get("email")
         if not email:
-            flash("Email is required!", "error")
+            flash("Email required!", "error")
             return redirect(url_for("forgot"))
-        
+
         user = db_query_one("SELECT * FROM users WHERE email = ?", (email,))
-        
         if user:
             token = secrets.token_urlsafe(32)
-            expires_at = datetime.datetime.now() + datetime.timedelta(hours=1)
-            
-            # Format datetime as string for SQLite compatibility
-            expires_at_str = expires_at.strftime('%Y-%m-%d %H:%M:%S')
-            
-            # Delete any old unused tokens for this user
-            try:
-                db_execute("DELETE FROM password_reset_tokens WHERE user_id = ? AND used = 0", 
-                          (user["id"],), commit=True)
-            except:
-                pass
-            
+            expires_at = (datetime.datetime.now() + datetime.timedelta(hours=1)).isoformat()
+
             db_execute("INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)",
-                       (user["id"], token, expires_at_str), commit=True)
-            
+                       (user["id"], token, expires_at), commit=True)
+
             reset_url = url_for('reset_password', token=token, _external=True)
-            
-            # ALWAYS show the link if in testing mode
-            if TESTING_MODE:
-                flash(f"Testing Mode: Copy this reset link", "info")
-                flash(reset_url, "success")
-                print(f"\n{'='*60}")
-                print(f"PASSWORD RESET LINK:")
-                print(reset_url)
-                print(f"{'='*60}\n")
-                return redirect(url_for("forgot"))
-            
-            # Try to send email only if NOT in testing mode
-            msg_body = f'''
-                <html>
-                <head>
-                    <style>
-                        body {{
-                            font-family: Arial, sans-serif;
-                            background-color: #f4f4f4;
-                            margin: 0;
-                            padding: 0;
-                        }}
-                        .container {{
-                            background-color: #ffffff;
-                            width: 90%;
-                            max-width: 600px;
-                            margin: 50px auto;
-                            padding: 20px;
-                            border-radius: 10px;
-                            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-                        }}
-                        h2 {{
-                            color: #333333;
-                        }}
-                        p {{
-                            color: #555555;
-                            line-height: 1.5;
-                        }}
-                        .button {{
-                            display: inline-block;
-                            padding: 12px 25px;
-                            margin-top: 20px;
-                            background-color: #007BFF;
-                            color: #ffffff;
-                            text-decoration: none;
-                            border-radius: 5px;
-                            font-weight: bold;
-                        }}
-                        .footer {{
-                            margin-top: 30px;
-                            font-size: 12px;
-                            color: #888888;
-                        }}
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <h2>Password Reset Request</h2>
-                        <p>Hello {user['username']},</p>
-                        <p>You have requested to reset your password for <strong>AuthGuard</strong>.</p>
-                        <p>Click the button below to reset your password. This link will expire in <strong>1 hour</strong>:</p>
-                        <a href="{reset_url}" class="button">Reset Password</a>
-                        <p>If you did not request this password reset, please ignore this email.</p>
-                        <div class="footer">
-                            Best regards,<br>
-                            <strong>AuthGuard Team</strong>
-                        </div>
-                    </div>
-                </body>
-                </html>
-                '''
-            
+            msg_body = f"""
+Hello {user['username']},
+
+You requested to reset your AuthGuard password.
+
+Click below to reset it (valid for 1 hour):
+{reset_url}
+
+If you didn’t request this, ignore this email.
+
+– AuthGuard Team
+"""
+
             try:
-                # Try yagmail first
-                success, message = email_service.send_email(
-                    to_email=email,
-                    subject='Password Reset Request - AuthGuard',
-                    body=msg_body,
-                    from_email=MAIL_USERNAME,
-                    password=MAIL_PASSWORD,
-                    method='yagmail',
-                    provider='gmail'
-                )
-                
-                if success:
-                    flash("Password reset instructions have been sent to your email!", "success")
+                if TESTING_MODE:
+                    flash(f"Password reset link: {reset_url}", "success")
+                    print(f"Reset URL: {reset_url}")
                 else:
-                    # If yagmail fails, show the link as fallback
-                    flash(f"Email sending failed. Here's your reset link:", "error")
-                    flash(reset_url, "info")
-                    print(f"\n{'='*60}")
-                    print(f"EMAIL FAILED - PASSWORD RESET LINK:")
-                    print(reset_url)
-                    print(f"Error: {message}")
-                    print(f"{'='*60}\n")
-                        
+                    success, message = email_service.send_email(
+                        to_email=email,
+                        subject="Password Reset Request - AuthGuard",
+                        body=msg_body,
+                        from_email=MAIL_USERNAME,
+                        password=MAIL_PASSWORD,
+                        method='yagmail',
+                        provider='gmail'
+                    )
+                    if success:
+                        flash("Password reset email sent!", "success")
+                    else:
+                        flash(f"Email failed: {message}", "error")
+                        flash(f"Link: {reset_url}", "info")
             except Exception as e:
-                flash("Failed to send email. Here's your reset link:", "error")
-                flash(reset_url, "info")
-                print(f"\n{'='*60}")
-                print(f"EMAIL ERROR - PASSWORD RESET LINK:")
-                print(reset_url)
-                print(f"Exception: {str(e)}")
-                print(f"{'='*60}\n")
+                flash("Email sending failed.", "error")
+                print(f"Email error: {e}")
+                flash(f"Reset link: {reset_url}", "info")
         else:
-            # For security, don't reveal if email exists or not
-            flash("If an account exists with that email, a reset link has been sent.", "info")
-        
+            flash("No account found with that email.", "error")
+
         return redirect(url_for("forgot"))
-        
     return render_template("forgot.html")
 
 @app.route("/reset-password/<token>", methods=["GET", "POST"])
