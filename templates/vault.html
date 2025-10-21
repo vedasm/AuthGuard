@@ -5,65 +5,389 @@ Vault
 {% endblock %}
 
 {% block main %}
-<div class="container" style="max-width: 900px;">
-    <h2>Welcome, {{ g.user['username'] }}</h2>
-    <h3>Your Saved Credentials</h3>
+<div class="container" style="max-width: 1100px;">
+    <div class="vault-header">
+        <h2>Welcome back, <span class="username-highlight">{{ g.user['username'] }}</span></h2>
+        <p class="subtitle">Manage your secure credentials</p>
+    </div>
+    
     {% if credentials %}
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Website</th>
-                        <th>Username</th>
-                        <th>Password</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for cred in credentials %}
-                        <tr>
-                            <td>{{ cred['website'] }}</td>
-                            <td>{{ cred['username'] }}</td>
-                            <td>
-                                <span class="password">********</span>
-                                <span class="actual-password" style="display:none;">{{ cred['password_encrypted'] }}</span>
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn btn-sm btn-primary view-btn">View</button>
-                                    <a href="{{ url_for('update_credential', cred_id=cred['id']) }}" class="btn btn-sm btn-primary">Edit</a>
-                                    <form method="POST" action="{{ url_for('delete_credential', cred_id=cred['id']) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this credential?');">
-                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="credentials-grid">
+            {% for cred in credentials %}
+                <div class="credential-card">
+                    <div class="card-header">
+                        <div class="website-icon">
+                            <span class="material-symbols-outlined">language</span>
+                        </div>
+                        <div class="website-info">
+                            <h4 class="website-name">{{ cred['website'] }}</h4>
+                            <p class="credential-username">{{ cred['username'] }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="password-section">
+                            <label class="password-label">Password</label>
+                            <div class="password-display">
+                                <span class="password-masked" data-id="{{ cred['id'] }}">••••••••</span>
+                                <span class="password-revealed" data-id="{{ cred['id'] }}" style="display:none;">{{ cred['password_encrypted'] }}</span>
+                                <button class="btn-icon view-toggle" data-id="{{ cred['id'] }}" title="Show password">
+                                    <span class="material-symbols-outlined icon-show">visibility</span>
+                                    <span class="material-symbols-outlined icon-hide" style="display:none;">visibility_off</span>
+                                </button>
+                                <button class="btn-icon copy-btn" data-password="{{ cred['password_encrypted'] }}" title="Copy password">
+                                    <span class="material-symbols-outlined">content_copy</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <a href="{{ url_for('update_credential', cred_id=cred['id']) }}" class="btn-action btn-edit">
+                            <span class="material-symbols-outlined">edit</span>
+                            Edit
+                        </a>
+                        <form method="POST" action="{{ url_for('delete_credential', cred_id=cred['id']) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this credential?');">
+                            <button type="submit" class="btn-action btn-delete">
+                                <span class="material-symbols-outlined">delete</span>
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
     {% else %}
-        <p>No credentials saved yet.</p>
+        <div class="empty-state">
+            <span class="material-symbols-outlined empty-icon">lock_open</span>
+            <h3>No credentials saved yet</h3>
+            <p>Start securing your accounts by adding your first credential</p>
+            <a href="/add" class="btn btn-primary">
+                <span class="material-symbols-outlined">add</span>
+                Add Credential
+            </a>
+        </div>
     {% endif %}
 </div>
 
+<style>
+.vault-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.username-highlight {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    color: #718096;
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+}
+
+.credentials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.credential-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+
+.credential-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
+}
+
+.card-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.website-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.website-icon .material-symbols-outlined {
+    color: white;
+    font-size: 28px;
+}
+
+.website-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.website-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.credential-username {
+    color: #718096;
+    font-size: 0.9rem;
+    margin: 0.25rem 0 0 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.password-section {
+    margin-bottom: 0;
+}
+
+.password-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4a5568;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.password-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f7fafc;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+}
+
+.password-masked,
+.password-revealed {
+    flex: 1;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    color: #2d3748;
+    word-break: break-all;
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    color: #718096;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+
+.btn-icon:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+
+.btn-icon .material-symbols-outlined {
+    font-size: 20px;
+}
+
+.card-footer {
+    padding: 1rem 1.5rem;
+    background: #f7fafc;
+    display: flex;
+    gap: 0.75rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btn-action {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-edit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+    color: white;
+}
+
+.btn-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 101, 101, 0.4);
+}
+
+.btn-action .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.empty-icon {
+    font-size: 80px;
+    color: #cbd5e0;
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: #718096;
+    margin-bottom: 2rem;
+}
+
+.empty-state .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Copy success notification */
+.copy-success {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(72, 187, 120, 0.4);
+    font-weight: 600;
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    animation: slideIn 0.3s ease;
+    z-index: 1000;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .credentials-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .card-footer {
+        flex-direction: column;
+    }
+    
+    .btn-action {
+        width: 100%;
+    }
+}
+</style>
+
 <script>
-const buttons = document.querySelectorAll('.view-btn');
-buttons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        const row = btn.closest('tr');
-        const hidden = row.querySelector('.actual-password');
-        const masked = row.querySelector('.password');
-        if (hidden.style.display === 'none') {
-            hidden.style.display = 'inline';
-            masked.style.display = 'none';
-            btn.textContent = 'Hide';
-        } else {
-            hidden.style.display = 'none';
+// Toggle password visibility
+document.querySelectorAll('.view-toggle').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const id = this.getAttribute('data-id');
+        const masked = document.querySelector(`.password-masked[data-id="${id}"]`);
+        const revealed = document.querySelector(`.password-revealed[data-id="${id}"]`);
+        const showIcon = this.querySelector('.icon-show');
+        const hideIcon = this.querySelector('.icon-hide');
+        
+        if (masked.style.display === 'none') {
             masked.style.display = 'inline';
-            btn.textContent = 'View';
+            revealed.style.display = 'none';
+            showIcon.style.display = 'inline';
+            hideIcon.style.display = 'none';
+        } else {
+            masked.style.display = 'none';
+            revealed.style.display = 'inline';
+            showIcon.style.display = 'none';
+            hideIcon.style.display = 'inline';
         }
     });
 });
+
+// Copy password to clipboard
+document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const password = this.getAttribute('data-password');
+        navigator.clipboard.writeText(password).then(() => {
+            showCopyNotification();
+        });
+    });
+});
+
+function showCopyNotification() {
+    let notification = document.querySelector('.copy-success');
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.className = 'copy-success';
+        notification.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Password copied!';
+        document.body.appendChild(notification);
+    }
+    
+    notification.style.display = 'flex';
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 2000);
+}
 </script>
 {% endblock %}
