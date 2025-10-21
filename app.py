@@ -377,6 +377,18 @@ def forgot():
                        (user["id"], token, expires_at), commit=True)
             
             reset_url = url_for('reset_password', token=token, _external=True)
+            
+            # ALWAYS show the link if in testing mode
+            if TESTING_MODE:
+                flash(f"Testing Mode: Copy this reset link", "info")
+                flash(reset_url, "success")
+                print(f"\n{'='*60}")
+                print(f"PASSWORD RESET LINK:")
+                print(reset_url)
+                print(f"{'='*60}\n")
+                return redirect(url_for("forgot"))
+            
+            # Try to send email only if NOT in testing mode
             msg_body = f'''
                 <html>
                 <head>
@@ -438,32 +450,40 @@ def forgot():
                 '''
             
             try:
-                if TESTING_MODE:
-                    flash(f"Password reset link: {reset_url}", "success")
-                    print(f"Reset URL: {reset_url}")
+                # Try yagmail first
+                success, message = email_service.send_email(
+                    to_email=email,
+                    subject='Password Reset Request - AuthGuard',
+                    body=msg_body,
+                    from_email=MAIL_USERNAME,
+                    password=MAIL_PASSWORD,
+                    method='yagmail',
+                    provider='gmail'
+                )
+                
+                if success:
+                    flash("Password reset instructions have been sent to your email!", "success")
                 else:
-                    success, message = email_service.send_email(
-                        to_email=email,
-                        subject='Password Reset Request - AuthGuard',
-                        body=msg_body,
-                        from_email=MAIL_USERNAME,
-                        password=MAIL_PASSWORD,
-                        method='yagmail',
-                        provider='gmail'
-                    )
-                    
-                    if success:
-                        flash("Password reset instructions have been sent to your email!", "success")
-                    else:
-                        flash(f"Email failed: {message}", "error")
-                        flash(f"Reset link: {reset_url}", "info")
+                    # If yagmail fails, show the link as fallback
+                    flash(f"Email sending failed. Here's your reset link:", "error")
+                    flash(reset_url, "info")
+                    print(f"\n{'='*60}")
+                    print(f"EMAIL FAILED - PASSWORD RESET LINK:")
+                    print(reset_url)
+                    print(f"Error: {message}")
+                    print(f"{'='*60}\n")
                         
             except Exception as e:
-                flash("Failed to send email. Please try again later.", "error")
-                print(f"Email error: {e}")
-                flash(f"Reset link: {reset_url}", "info")
+                flash("Failed to send email. Here's your reset link:", "error")
+                flash(reset_url, "info")
+                print(f"\n{'='*60}")
+                print(f"EMAIL ERROR - PASSWORD RESET LINK:")
+                print(reset_url)
+                print(f"Exception: {str(e)}")
+                print(f"{'='*60}\n")
         else:
-            flash("No account found with that email address.", "error")
+            # For security, don't reveal if email exists or not
+            flash("If an account exists with that email, a reset link has been sent.", "info")
         
         return redirect(url_for("forgot"))
         
