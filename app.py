@@ -363,35 +363,86 @@ If you didn’t request this, ignore this email.
 
 @app.route("/reset-password/<token>", methods=["GET", "POST"])
 def reset_password(token):
-    token_record = db_query_one(
-        "SELECT * FROM password_reset_tokens WHERE token = ? AND used = 0 AND expires_at > ?",
-        (token, datetime.datetime.now().isoformat())
-    )
+    try:
+        # Query token - don't check expiration in the query
+        token_record = db_query_one(
+            "SELECT * FROM password_reset_tokens WHERE token = ? AND used = 0",
+            (token,)
+        )
 
-    if not token_record:
-        flash("Invalid or expired token!", "error")
-        return redirect(url_for("login"))
+        if not token_record:
+            flash("Invalid or already used reset token!", "error")
+            return redirect(url_for("login"))
+        
+        # Check if token is expired
+        expires_at = token_record["expires_at"]
+        current_time = datetime.datetime.now()
+        
+        # Handle different datetime formats
+        if isinstance(expires_at, str):
+            # Try different datetime formats
+            try:
+                # Format: 2024-01-01 12:00:00
+                expires_at = datetime.datetime.strptime(expires_at, '%Y-%m-%d %H:%M:%S.%f')
+            except ValueError:
+                try:
+                    expires_at = datetime.datetime.strptime(expires_at, '%Y-%m-%d %H:%M:%S')
+                except ValueError:
+                    try:
+                        # ISO format
+                        expires_at = datetime.datetime.fromisoformat(expires_at.replace('Z', ''))
+                    except ValueError:
+                        flash("Invalid token format!", "error")
+                        return redirect(url_for("forgot"))
+        
+        # Check expiration
+        if current_time > expires_at:
+            flash("This reset link has expired. Please request a new one.", "error")
+            return redirect(url_for("forgot"))
 
-    if request.method == "POST":
-        new_password = request.form.get("new_password")
-        confirm_password = request.form.get("confirm_password")
+        if request.method == "POST":
+            new_password = request.form.get("new_password")
+            confirm_password = request.form.get("confirm_password")
 
-        if not new_password or not confirm_password:
-            flash("All fields required!", "error")
-            return redirect(url_for("reset_password", token=token))
-        if new_password != confirm_password:
-            flash("Passwords don’t match!", "error")
-            return redirect(url_for("reset_password", token=token))
+            if not new_password or not confirm_password:
+                flash("All fields are required!", "error")
+                return redirect(url_for("reset_password", token=token))
 
-        db_execute("UPDATE users SET password_hash = ? WHERE id = ?",
-                   (generate_password_hash(new_password), token_record["user_id"]), commit=True)
-        db_execute("UPDATE password_reset_tokens SET used = 1 WHERE id = ?",
-                   (token_record["id"],), commit=True)
+            if new_password != confirm_password:
+                flash("Passwords do not match!", "error")
+                return redirect(url_for("reset_password", token=token))
 
-        flash("Password reset successfully! You can now log in.", "success")
-        return redirect(url_for("login"))
+            try:
+                # Update password
+                new_hash = generate_password_hash(new_password)
+                db_execute(
+                    "UPDATE users SET password_hash = ? WHERE id = ?",
+                    (new_hash, token_record["user_id"]),
+                    commit=True
+                )
+                
+                # Mark token as used
+                db_execute(
+                    "UPDATE password_reset_tokens SET used = 1 WHERE id = ?",
+                    (token_record["id"],),
+                    commit=True
+                )
+                
+                flash("Password reset successfully! You can now log in with your new password.", "success")
+                return redirect(url_for("login"))
+                
+            except Exception as e:
+                flash(f"Error updating password: {str(e)}", "error")
+                return redirect(url_for("reset_password", token=token))
 
-    return render_template("reset_password.html", token=token)
+        return render_template("reset_password.html", token=token)
+        
+    except Exception as e:
+        print(f"Error in reset_password route: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        flash(f"Error processing reset request. Please try requesting a new reset link.", "error")
+        return redirect(url_for("forgot"))
 
 
 if __name__ == '__main__':
