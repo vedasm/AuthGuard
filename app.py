@@ -141,7 +141,7 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
-# ---------------- AUTH ROUTES ----------------
+# ---------------- Login and Register Routes ----------------
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -177,7 +177,6 @@ def register():
         if password != confirmation:
             flash("Passwords do not match!", "error")
             return redirect(url_for("register"))
-
         # Unique check
         if db_query_one("SELECT 1 FROM users WHERE username = ?", (username,)):
             flash("Username already taken!", "error")
@@ -185,7 +184,6 @@ def register():
         if db_query_one("SELECT 1 FROM users WHERE email = ?", (email,)):
             flash("Email already registered!", "error")
             return redirect(url_for("register"))
-
         hash_pw = generate_password_hash(password)
         db_execute("INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
                    (username, email, hash_pw), commit=True)
@@ -206,7 +204,7 @@ def logout():
     session.clear()
     return redirect("/")
 
-# ---------------- CREDENTIAL ROUTES ----------------
+# ---------------- Credential Routes ----------------
 
 @app.route("/add", methods=["GET", "POST"])
 @login_required
@@ -328,7 +326,7 @@ def delete_credential(cred_id):
     flash("Credential deleted!", "success")
     return redirect(url_for("vault"))
 
-# ---------------- PASSWORD RESET ----------------
+# ---------------- Password Reset Routes ----------------
 
 def parse_datetime(dt_str):
     """Parse datetime string from various formats"""

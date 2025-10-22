@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Database initialization script for AuthGuard
 Creates tables for both SQLite (local) and PostgreSQL (production)
