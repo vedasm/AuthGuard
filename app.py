@@ -397,7 +397,7 @@ def reset_password(token):
     try:
         # Query token - don't check expiration in the query
         token_record = db_query_one(
-            "SELECT * FROM password_reset_tokens WHERE token = ? AND used = 0",
+            "SELECT * FROM password_reset_tokens WHERE token = ? AND used = FALSE",
             (token,)
         )
 
