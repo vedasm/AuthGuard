@@ -262,13 +262,41 @@ def account():
             return redirect(url_for("account"))
 
         elif "delete_account" in request.form:
-            db_execute("DELETE FROM credentials WHERE user_id = ?", (g.user["id"],), commit=True)
-            db_execute("DELETE FROM users WHERE id = ?", (g.user["id"],), commit=True)
-            session.clear()
-            flash("Account deleted successfully!", "success")
-            return redirect(url_for("register"))
+            try:
+                user_id = g.user["id"]
+                
+                # Delete credentials first
+                db_execute("DELETE FROM credentials WHERE user_id = ?", (user_id,))
+                
+                # Delete password reset tokens if they exist
+                try:
+                    db_execute("DELETE FROM password_reset_tokens WHERE user_id = ?", (user_id,))
+                except Exception as e:
+                    print(f"Note: Could not delete reset tokens: {e}")
+                
+                # Delete the user
+                db_execute("DELETE FROM users WHERE id = ?", (user_id,))
+                
+                # Commit all deletions together
+                db_commit()
+                
+                # Clear session after successful deletion
+                session.clear()
+                
+                flash("Account deleted successfully!", "success")
+                return redirect(url_for("register"))
+                
+            except Exception as e:
+                # Rollback on error
+                get_db().rollback()
+                print(f"Error deleting account: {e}")
+                import traceback
+                traceback.print_exc()
+                flash("Error deleting account. Please try again.", "error")
+                return redirect(url_for("account"))
 
     return render_template("account.html")
+
 
 @app.route("/update/<int:cred_id>", methods=["GET", "POST"])
 @login_required
