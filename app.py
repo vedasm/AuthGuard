@@ -405,14 +405,8 @@ def reset_password(token):
             flash("Invalid or already used reset token!", "error")
             return redirect(url_for("login"))
         
-        # Debug: Print the token record structure
-        print(f"Token record: {token_record}")
-        print(f"Token record type: {type(token_record)}")
-        print(f"Token record keys: {token_record.keys() if hasattr(token_record, 'keys') else 'N/A'}")
-        
         # Parse expires_at safely
         expires_at = parse_datetime(token_record["expires_at"])
-        print(f"Parsed expires_at: {expires_at}, type: {type(expires_at)}")
         
         if expires_at is None:
             flash("Invalid token format!", "error")
@@ -447,11 +441,15 @@ def reset_password(token):
                 )
                 
                 # Mark token as used
-                db_execute(
-                    "UPDATE password_reset_tokens SET used = 1 WHERE id = ?",
-                    (token_record["id"],),
-                    commit=True
-                )
+                try:
+                    db_execute(
+                        "UPDATE password_reset_tokens SET used = ? WHERE id = ?",
+                        (True, token_record["id"]),
+                        commit=True
+                    )
+                except Exception as token_update_error:
+                    print(f"Warning: Could not mark token as used: {token_update_error}")
+                    # Continue anyway - password was already updated
                 
                 flash("Password reset successfully! You can now log in with your new password.", "success")
                 return redirect(url_for("login"))
