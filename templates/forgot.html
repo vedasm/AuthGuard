@@ -1,10 +1,45 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Forgot Password
+    Forgot Password - AuthGuard
 {% endblock %}
 
 {% block main %}
+    <!-- Flash Messages Container -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container-inline">
+                {% for category, message in messages %}
+                    {% if category == "error" %}
+                        <div class="flash-message flash-error" role="alert">
+                            <span class="material-symbols-outlined">error</span>
+                            <span>{{ message }}</span>
+                            <button class="flash-close" onclick="this.parentElement.remove()">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                    {% elif category == "success" %}
+                        <div class="flash-message flash-success" role="alert">
+                            <span class="material-symbols-outlined">check_circle</span>
+                            <span>{{ message }}</span>
+                            <button class="flash-close" onclick="this.parentElement.remove()">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                    {% else %}
+                        <div class="flash-message flash-info" role="alert">
+                            <span class="material-symbols-outlined">info</span>
+                            <span>{{ message }}</span>
+                            <button class="flash-close" onclick="this.parentElement.remove()">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
     <div class="container" style="max-width: 450px;">
         <div class="page-header">
             <div class="header-icon">
@@ -17,7 +52,7 @@
         <div class="form-card">
             <div class="info-box">
                 <span class="material-symbols-outlined">info</span>
-                <p>Enter your email address and we'll send you a link to reset your password.</p>
+                <p>Enter your email address and we'll send you a secure link to reset your password.</p>
             </div>
             
             <form action="/forgot" method="post">
@@ -26,8 +61,18 @@
                         <span class="material-symbols-outlined label-icon">email</span>
                         Email Address
                     </label>
-                    <input autocomplete="off" autofocus class="form-control" id="email" name="email" placeholder="your.email@example.com" type="email" required>
+                    <input 
+                        autocomplete="off" 
+                        autofocus 
+                        class="form-control" 
+                        id="email" 
+                        name="email" 
+                        placeholder="your.email@example.com" 
+                        type="email" 
+                        required
+                    >
                 </div>
+
                 <button class="btn btn-primary w-100" type="submit">
                     <span class="material-symbols-outlined">send</span>
                     Send Reset Link
@@ -76,6 +121,7 @@
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             border: 1px solid #e2e8f0;
+            margin-bottom: 1rem;
         }
 
         .info-box {
@@ -117,15 +163,159 @@
             color: #667eea;
         }
 
+        .form-control {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+            width: 100%;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+            outline: none;
+        }
+
         .btn {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            cursor: pointer;
         }
 
         .btn .material-symbols-outlined {
             font-size: 20px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+            color: white;
+        }
+
+        .mb-3 {
+            margin-bottom: 1.25rem;
+        }
+
+        .mt-3 {
+            margin-top: 1rem;
+        }
+
+        .w-100 {
+            width: 100%;
+        }
+
+        /* Flash Messages */
+        .flash-container-inline {
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        .flash-message {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.3s ease;
+            font-weight: 500;
+        }
+
+        .flash-message .material-symbols-outlined {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .flash-close {
+            margin-left: auto;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0.25rem;
+            display: flex;
+            align-items: center;
+            border-radius: 6px;
+            transition: background 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .flash-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .flash-close .material-symbols-outlined {
+            font-size: 20px;
+        }
+
+        .flash-error {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            color: #c53030;
+            border: 1px solid #fc8181;
+        }
+
+        .flash-success {
+            background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+            color: #22543d;
+            border: 1px solid #68d391;
+        }
+
+        .flash-info {
+            background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
+            color: #2c5282;
+            border: 1px solid #90cdf4;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .page-header {
+                margin-bottom: 1.5rem;
+            }
+
+            .form-card {
+                padding: 1.5rem;
+            }
         }
     </style>
 {% endblock %}
