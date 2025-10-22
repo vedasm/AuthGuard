@@ -302,6 +302,37 @@ def delete_credential(cred_id):
 
 # ---------------- PASSWORD RESET ----------------
 
+def parse_datetime(dt_str):
+    """Parse datetime string from various formats"""
+    if dt_str is None:
+        return None
+    
+    # If already a datetime object, return it
+    if isinstance(dt_str, datetime.datetime):
+        return dt_str
+    
+    # Try parsing from string
+    formats = [
+        '%Y-%m-%d %H:%M:%S.%f',
+        '%Y-%m-%d %H:%M:%S',
+        '%Y-%m-%dT%H:%M:%S.%f',
+        '%Y-%m-%dT%H:%M:%S',
+    ]
+    
+    for fmt in formats:
+        try:
+            return datetime.datetime.strptime(dt_str, fmt)
+        except ValueError:
+            continue
+    
+    # Try ISO format with Z or timezone
+    try:
+        return datetime.datetime.fromisoformat(dt_str.replace('Z', '+00:00'))
+    except:
+        pass
+    
+    return None
+
 @app.route("/forgot", methods=["GET", "POST"])
 def forgot():
     if request.method == "POST":
@@ -327,7 +358,7 @@ You requested to reset your AuthGuard password.
 Click below to reset it (valid for 1 hour):
 {reset_url}
 
-If you didn’t request this, ignore this email.
+If you didn't request this, ignore this email.
 
 – AuthGuard Team
 """
@@ -374,28 +405,16 @@ def reset_password(token):
             flash("Invalid or already used reset token!", "error")
             return redirect(url_for("login"))
         
-        # Check if token is expired
-        expires_at = token_record["expires_at"]
-        current_time = datetime.datetime.now()
+        # Parse expires_at safely
+        expires_at = parse_datetime(token_record["expires_at"])
         
-        # Handle different datetime formats
-        if isinstance(expires_at, str):
-            # Try different datetime formats
-            try:
-                # Format: 2024-01-01 12:00:00
-                expires_at = datetime.datetime.strptime(expires_at, '%Y-%m-%d %H:%M:%S.%f')
-            except ValueError:
-                try:
-                    expires_at = datetime.datetime.strptime(expires_at, '%Y-%m-%d %H:%M:%S')
-                except ValueError:
-                    try:
-                        # ISO format
-                        expires_at = datetime.datetime.fromisoformat(expires_at.replace('Z', ''))
-                    except ValueError:
-                        flash("Invalid token format!", "error")
-                        return redirect(url_for("forgot"))
+        if expires_at is None:
+            flash("Invalid token format!", "error")
+            return redirect(url_for("forgot"))
         
         # Check expiration
+        current_time = datetime.datetime.now()
+        
         if current_time > expires_at:
             flash("This reset link has expired. Please request a new one.", "error")
             return redirect(url_for("forgot"))
