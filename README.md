@@ -322,8 +322,8 @@ in the Software without restriction...
 
 **Veda S M**
 
-[![GitHub](https://img.shields.io/badge/GitHub-vedasm-181717?style=flat-square&logo=github)](https://github.com/vedasm)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-vedasm-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/vedasm/)
+[![GitHub](https://img.shields.io/badge/GitHub-000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/vedasm)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/vedasm)
 
 ---
 
