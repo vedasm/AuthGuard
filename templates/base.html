@@ -23,7 +23,7 @@
     </head>
 
     <body>
-        <!-- Modern Navbar -->
+        <!-- Modern Navbar (Desktop) -->
         <nav class="modern-navbar">
             <div class="container-fluid">
                 <div class="navbar-content">
@@ -35,13 +35,8 @@
                         <span class="brand-text">AuthGuard</span>
                     </a>
 
-                    <!-- Mobile Toggle -->
-                    <button class="mobile-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="material-symbols-outlined">menu</span>
-                    </button>
-
-                    <!-- Navigation Links -->
-                    <div class="nav-menu collapse" id="navbarNav">
+                    <!-- Navigation Links (Desktop) -->
+                    <div class="nav-menu-desktop">
                         {% if session["user_id"] %}
                             <ul class="nav-links">
                                 <li class="nav-item-modern">
@@ -90,6 +85,43 @@
             </div>
         </nav>
 
+        <!-- Bottom Navigation (Mobile) -->
+        {% if session["user_id"] %}
+        <nav class="mobile-bottom-nav">
+            <a href="/" class="bottom-nav-item" title="Vault">
+                <span class="material-symbols-outlined">folder_open</span>
+                <span class="bottom-nav-label">Vault</span>
+            </a>
+            <a href="/add" class="bottom-nav-item" title="Add">
+                <span class="material-symbols-outlined">add_circle</span>
+                <span class="bottom-nav-label">Add</span>
+            </a>
+            <a href="/account" class="bottom-nav-item" title="Account">
+                <span class="material-symbols-outlined">manage_accounts</span>
+                <span class="bottom-nav-label">Account</span>
+            </a>
+            <a href="/logout" class="bottom-nav-item logout-item" title="Logout">
+                <span class="material-symbols-outlined">logout</span>
+                <span class="bottom-nav-label">Logout</span>
+            </a>
+        </nav>
+        {% else %}
+        <nav class="mobile-bottom-nav">
+            <a href="/" class="bottom-nav-item" title="Home">
+                <span class="material-symbols-outlined">home</span>
+                <span class="bottom-nav-label">Home</span>
+            </a>
+            <a href="/login" class="bottom-nav-item" title="Login">
+                <span class="material-symbols-outlined">login</span>
+                <span class="bottom-nav-label">Login</span>
+            </a>
+            <a href="/register" class="bottom-nav-item register-item" title="Register">
+                <span class="material-symbols-outlined">person_add</span>
+                <span class="bottom-nav-label">Register</span>
+            </a>
+        </nav>
+        {% endif %}
+
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -125,12 +157,12 @@
             {% endif %}
         {% endwith %}
 
-        <main class="container py-5 text-center">
+        <main class="container py-5 text-center mobile-main-content">
             {% block main %}{% endblock %}
         </main>
 
         <style>
-            /* Modern Navbar Styles */
+            /* Desktop Navbar Styles */
             .modern-navbar {
                 background: rgba(255, 255, 255, 0.95);
                 backdrop-filter: blur(10px);
@@ -188,24 +220,9 @@
                 background-clip: text;
             }
 
-            .mobile-toggle {
-                display: none;
-                background: transparent;
-                border: none;
-                color: #4a5568;
-                cursor: pointer;
-                padding: 0.5rem;
-                margin-left: auto;
-            }
-
-            .mobile-toggle .material-symbols-outlined {
-                font-size: 28px;
-            }
-
-            .nav-menu {
+            .nav-menu-desktop {
                 display: flex;
                 align-items: center;
-                margin-left: auto;
             }
 
             .nav-links {
@@ -232,7 +249,6 @@
                 font-weight: 600;
                 font-size: 0.95rem;
                 transition: all 0.3s ease;
-                position: relative;
                 white-space: nowrap;
             }
 
@@ -261,6 +277,91 @@
                 transform: translateY(-2px);
                 box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
                 color: white;
+            }
+
+            /* Mobile Bottom Navigation */
+            .mobile-bottom-nav {
+                display: none;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(10px);
+                border-top: 1px solid rgba(102, 126, 234, 0.1);
+                box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.08);
+                z-index: 999;
+                height: 70px;
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+
+            .mobile-bottom-nav {
+                display: flex;
+                justify-content: space-around;
+                align-items: flex-start;
+            }
+
+            .bottom-nav-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 0.25rem;
+                text-decoration: none;
+                color: #4a5568;
+                padding: 0.5rem;
+                flex: 1;
+                height: 70px;
+                transition: all 0.2s ease;
+                position: relative;
+            }
+
+            .bottom-nav-item .material-symbols-outlined {
+                font-size: 28px;
+                transition: all 0.2s ease;
+            }
+
+            .bottom-nav-label {
+                font-size: 0.7rem;
+                font-weight: 600;
+                text-align: center;
+                max-width: 60px;
+                line-height: 1;
+            }
+
+            .bottom-nav-item:hover,
+            .bottom-nav-item:active {
+                color: #667eea;
+                background: rgba(102, 126, 234, 0.05);
+            }
+
+            .bottom-nav-item.logout-item:hover,
+            .bottom-nav-item.logout-item:active {
+                color: #f56565;
+                background: rgba(245, 101, 101, 0.05);
+            }
+
+            .bottom-nav-item.register-item {
+                color: white;
+            }
+
+            .bottom-nav-item.register-item:before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 12px 12px 0 0;
+                z-index: -1;
+                box-shadow: 0 -4px 12px rgba(102, 126, 234, 0.3);
+            }
+
+            .bottom-nav-item.register-item:hover {
+                transform: translateY(-2px);
+                background: transparent;
             }
 
             /* Flash Messages */
@@ -340,8 +441,9 @@
 
             /* Mobile Responsive */
             @media (max-width: 768px) {
-                .mobile-toggle {
-                    display: block;
+                .modern-navbar {
+                    padding: 0.5rem 0;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
                 }
 
                 .navbar-content {
@@ -361,47 +463,25 @@
                     font-size: 24px;
                 }
 
-                .nav-menu {
-                    position: absolute;
-                    top: 100%;
-                    left: 0;
-                    right: 0;
-                    background: white;
-                    padding: 1rem;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                    margin-left: 0;
-                    border-bottom: 1px solid rgba(102, 126, 234, 0.1);
-                }
-
-                .nav-menu.collapse:not(.show) {
+                .nav-menu-desktop {
                     display: none;
                 }
 
-                .nav-menu.collapse.show {
-                    display: block;
+                .mobile-bottom-nav {
+                    display: flex;
                 }
 
-                .nav-links {
-                    flex-direction: column;
-                    width: 100%;
-                    gap: 0.5rem;
-                }
-
-                .nav-link-modern {
-                    width: 100%;
-                    justify-content: flex-start;
-                    border-radius: 8px;
-                }
-
-                .nav-link-modern.register-link {
-                    justify-content: center;
+                .mobile-main-content {
+                    margin-bottom: 80px;
+                    padding-bottom: 2rem !important;
                 }
 
                 .flash-container {
+                    top: auto;
+                    bottom: 90px;
                     right: 1rem;
                     left: 1rem;
                     max-width: none;
-                    top: calc(100% + 1rem);
                 }
 
                 .flash-message {
@@ -423,13 +503,12 @@
                     font-size: 1.1rem;
                 }
 
-                .nav-link-modern {
-                    padding: 0.625rem 1rem;
-                    font-size: 0.9rem;
+                .bottom-nav-label {
+                    font-size: 0.65rem;
                 }
 
-                .nav-link-modern .material-symbols-outlined {
-                    font-size: 20px;
+                .bottom-nav-item .material-symbols-outlined {
+                    font-size: 26px;
                 }
 
                 .flash-container {
