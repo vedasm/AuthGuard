@@ -85,7 +85,7 @@
             </div>
         </nav>
 
-        <!-- Bottom Navigation (Mobile) -->
+        <!-- Bottom Navigation (Mobile Only) -->
         {% if session["user_id"] %}
         <nav class="mobile-bottom-nav">
             <a href="/" class="bottom-nav-item" title="Vault">
@@ -279,26 +279,9 @@
                 color: white;
             }
 
-            /* Mobile Bottom Navigation */
+            /* Mobile Bottom Navigation - Hidden by default */
             .mobile-bottom-nav {
                 display: none;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: rgba(255, 255, 255, 0.98);
-                backdrop-filter: blur(10px);
-                border-top: 1px solid rgba(102, 126, 234, 0.1);
-                box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.08);
-                z-index: 999;
-                height: 70px;
-                padding-bottom: env(safe-area-inset-bottom);
-            }
-
-            .mobile-bottom-nav {
-                display: flex;
-                justify-content: space-around;
-                align-items: flex-start;
             }
 
             .bottom-nav-item {
@@ -339,29 +322,6 @@
             .bottom-nav-item.logout-item:active {
                 color: #f56565;
                 background: rgba(245, 101, 101, 0.05);
-            }
-
-            .bottom-nav-item.register-item {
-                color: white;
-            }
-
-            .bottom-nav-item.register-item:before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                border-radius: 12px 12px 0 0;
-                z-index: -1;
-                box-shadow: 0 -4px 12px rgba(102, 126, 234, 0.3);
-            }
-
-            .bottom-nav-item.register-item:hover {
-                transform: translateY(-2px);
-                background: transparent;
             }
 
             /* Flash Messages */
@@ -439,11 +399,10 @@
                 }
             }
 
-            /* Mobile Responsive */
+            /* Mobile Responsive - SHOW BOTTOM NAV ONLY ON MOBILE */
             @media (max-width: 768px) {
                 .modern-navbar {
                     padding: 0.5rem 0;
-                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
                 }
 
                 .navbar-content {
@@ -467,8 +426,22 @@
                     display: none;
                 }
 
+                /* SHOW BOTTOM NAV ON MOBILE */
                 .mobile-bottom-nav {
                     display: flex;
+                    position: fixed;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    background: rgba(255, 255, 255, 0.98);
+                    backdrop-filter: blur(10px);
+                    border-top: 1px solid rgba(102, 126, 234, 0.1);
+                    box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.08);
+                    z-index: 999;
+                    height: 70px;
+                    padding-bottom: env(safe-area-inset-bottom);
+                    justify-content: space-around;
+                    align-items: flex-start;
                 }
 
                 .mobile-main-content {
@@ -488,10 +461,6 @@
                     padding: 0.875rem 1rem;
                     font-size: 0.9rem;
                 }
-
-                .flash-message .material-symbols-outlined {
-                    font-size: 20px;
-                }
             }
 
             @media (max-width: 480px) {
@@ -507,19 +476,9 @@
                     font-size: 0.65rem;
                 }
 
-                .bottom-nav-item .material-symbols-outlined {
-                    font-size: 26px;
-                }
-
                 .flash-container {
                     right: 0.5rem;
                     left: 0.5rem;
-                }
-
-                .flash-message {
-                    padding: 0.75rem 0.875rem;
-                    font-size: 0.85rem;
-                    border-radius: 8px;
                 }
             }
         </style>
