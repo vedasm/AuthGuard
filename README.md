@@ -125,7 +125,7 @@ python app.py
 
 ---
 
-## 📧 Email Setup (Gmail)
+## 📧 Email Setup - Gmail
 
 ### Step 1: Enable 2-Factor Authentication
 - Go to [Google Account](https://myaccount.google.com)
