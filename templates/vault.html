@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}
+Vault
+{% endblock %}
+
+{% block main %}
+<div class="container" style="max-width: 900px;">
+    <h2>Welcome, {{ g.user['username'] }}</h2>
+    <h3>Your Saved Credentials</h3>
+
+    {% if credentials %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Website</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cred in credentials %}
+                    <tr>
+                        <td>{{ cred['website'] }}</td>
+                        <td>{{ cred['username'] }}</td>
+                        <td>
+                            <span class="password-masked" data-id="{{ cred['id'] }}">********</span>
+                            <span class="password-revealed" data-id="{{ cred['id'] }}" style="display:none;">{{ cred['password_encrypted'] }}</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button type="button" class="btn btn-primary btn-sm view-toggle" data-id="{{ cred['id'] }}">View</button>
+                                <a href="{{ url_for('update_credential', cred_id=cred['id']) }}" class="btn btn-primary btn-sm">Edit</a>
+                                <form method="POST" action="{{ url_for('delete_credential', cred_id=cred['id']) }}" style="display:inline;" onsubmit="return confirm('Delete this credential?');">
+                                    <button type="submit" class="btn btn-primary btn-sm">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No credentials saved yet.</p>
+    {% endif %}
+</div>
+
+<script>
+document.querySelectorAll('.view-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var id = this.getAttribute('data-id');
+        var masked = document.querySelector('.password-masked[data-id="' + id + '"]');
+        var revealed = document.querySelector('.password-revealed[data-id="' + id + '"]');
+        if (masked.style.display === 'none') {
+            masked.style.display = 'inline';
+            revealed.style.display = 'none';
+            this.textContent = 'View';
+        } else {
+            masked.style.display = 'none';
+            revealed.style.display = 'inline';
+            this.textContent = 'Hide';
+        }
+    });
+});
+</script>
+{% endblock %}
