@@ -26,7 +26,7 @@ app = Flask(__name__)
 SECRET_KEY = os.environ.get('SECRET_KEY')
 if not SECRET_KEY:
     SECRET_KEY = secrets.token_hex(32)
-    print("⚠️ Using generated SECRET_KEY. Set SECRET_KEY in Vercel environment variables.")
+    print("Warning: using a generated SECRET_KEY. Set SECRET_KEY in your environment variables.")
 
 app.config['SECRET_KEY'] = SECRET_KEY
 app.config["SESSION_PERMANENT"] = False
@@ -46,7 +46,7 @@ MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
 TESTING_MODE = os.environ.get('TESTING_MODE', 'False') == 'True'
 
 if not MAIL_USERNAME or not MAIL_PASSWORD:
-    print("⚠️ MAIL_USERNAME or MAIL_PASSWORD not set. Email may not work.")
+    print("Warning: MAIL_USERNAME or MAIL_PASSWORD not set. Email sending will not work.")
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
