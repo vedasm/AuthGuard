@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,55 +10,48 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     {% block extra_head %}{% endblock %}
 </head>
-
 <body>
-
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg bg-white shadow-sm border-bottom">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center fw-bold" href="/">
-                <span class="material-symbols-outlined me-2">
-                    encrypted
-                </span>
+                <span class="material-symbols-outlined me-2">encrypted</span>
                 AuthGuard
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="ms-auto d-flex align-items-center gap-3">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
                     {% if session.get("user_id") %}
-                    <a class="nav-link" href="/">🔐 Vault</a>
-                    <a class="nav-link" href="/add">➕ Add</a>
-                    <a class="nav-link" href="/account">👤 Account</a>
-                    <a class="nav-link text-danger" href="/logout">
-                        ➜ Logout
-                    </a>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">🔐 Vault</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/add">➕ Add</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/account">👤 Account</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="/logout">➡ Logout</a>
+                    </li>
                     {% else %}
-                    <a class="nav-link" href="/login">
-                        🔑 Login
-                    </a>
-                    <a class="nav-link" href="/register">
-                        📝 Register
-                    </a>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">🔑 Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/register">📝 Register</a>
+                    </li>
                     {% endif %}
-                </div>
+                </ul>
             </div>
         </div>
     </nav>
-    <!-- Main Content -->
     <main class="container py-5">
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}
-        <div class="alert
-                        {% if category == 'success' %}
-                            alert-success
-                        {% elif category == 'error' %}
-                            alert-danger
-                        {% else %}
-                            alert-primary
-                        {% endif %}">
+        <div class="alert {% if category == 'success' %}alert-success{% elif category == 'error' %}alert-danger{% else %}alert-primary{% endif %}">
             {{ message }}
         </div>
         {% endfor %}
