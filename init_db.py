@@ -48,7 +48,7 @@ def init_sqlite_db():
 
     conn.commit()
     conn.close()
-    print("✅ SQLite database initialized successfully!")
+    print("SQLite database initialized successfully.")
 
 
 def init_postgresql_db():
@@ -59,7 +59,7 @@ def init_postgresql_db():
 
         DATABASE_URL = os.environ.get('DATABASE_URL')
         if not DATABASE_URL:
-            print("❌ DATABASE_URL not found in environment variables")
+            print("DATABASE_URL not found in environment variables.")
             return
 
         conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
@@ -101,26 +101,26 @@ def init_postgresql_db():
 
         conn.commit()
         conn.close()
-        print("✅ PostgreSQL database initialized successfully!")
+        print("PostgreSQL database initialized successfully.")
 
     except ImportError:
-        print("❌ psycopg2 not installed. Install with: pip install psycopg2-binary")
+        print("psycopg2 not installed. Install with: pip install psycopg2-binary")
     except Exception as e:
-        print(f"❌ Error initializing PostgreSQL database: {e}")
+        print(f"Error initializing PostgreSQL database: {e}")
 
 
 def main():
     """Initialize database based on environment"""
-    print("🔧 Initializing AuthGuard database...")
+    print("Initializing AuthGuard database...")
 
     if os.environ.get('VERCEL'):
-        print("🌐 Production environment detected - initializing PostgreSQL...")
+        print("Production environment detected - initializing PostgreSQL...")
         init_postgresql_db()
     else:
-        print("💻 Local environment detected - initializing SQLite...")
+        print("Local environment detected - initializing SQLite...")
         init_sqlite_db()
 
-    print("🎉 Database initialization complete!")
+    print("Database initialization complete.")
 
 
 if __name__ == "__main__":
