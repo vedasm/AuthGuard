@@ -1,6 +1,7 @@
 """
-Enhanced Email Service for PassGuard
-Supports multiple email providers with better reliability
+Email service for AuthGuard.
+Supports multiple SMTP providers (Gmail, Outlook, Yahoo), using yagmail
+as the primary method and raw SMTP as a fallback.
 """
 
 import smtplib
